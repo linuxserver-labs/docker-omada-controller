@@ -1,0 +1,26 @@
+---
+# jenkins variables
+project_name: docker-omada-controller
+external_type: na
+custom_version_command: curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -o 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}'
+release_type: stable
+release_tag: latest
+ls_branch: master
+repo_vars:
+  - BUILD_VERSION_ARG = 'OMADA_VERSION'
+  - LS_USER = 'linuxserver-labs'
+  - LS_REPO = 'docker-omada-controller'
+  - CONTAINER_NAME = 'omada-controller'
+  - DOCKERHUB_IMAGE = 'linuxserver/omada-controller'
+  - DEV_DOCKERHUB_IMAGE = 'lsiodev/omada-controller'
+  - PR_DOCKERHUB_IMAGE = 'lspipepr/omada-controller'
+  - DIST_IMAGE = 'ubuntu'
+  - MULTIARCH='true'
+  - CI='true'
+  - CI_WEB='true'
+  - CI_PORT='8043'
+  - CI_SSL='true'
+  - CI_DELAY='120'
+  - CI_DOCKERENV='TZ=US/Pacific'
+  - CI_AUTH=''
+  - CI_WEBPATH=''
