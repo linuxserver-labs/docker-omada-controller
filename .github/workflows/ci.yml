@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+  pull_request:
+    types:
+    - opened
+    - reopened
+  schedule:
+    - cron:  '30 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci-skip]')"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Check if we should rebuild
+      id: build_check
+      run: |
+        if [ "${{github.event_name}}" != "schedule" ]; then
+          echo "**** event was not cron, rebuilding ****"
+          echo ::set-output name=update_available::true
+          exit 0
+        fi
+
+        echo "**** Retrieving external version ****"
+        EXT_RELEASE=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -o 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}')
+        if [ -z "${EXT_RELEASE}" ] || [ "${EXT_RELEASE}" == "null" ]; then
+          echo "**** Can't retrieve external version, exiting ****"
+          exit 1
+        fi
+
+        EXT_RELEASE=$(echo ${EXT_RELEASE} | sed 's/[~,%@+;:/]//g')
+
+        echo "**** External version: ${EXT_RELEASE} ****"
+
+        echo "**** Retrieving last pushed version ****"
+
+        image="linuxserver-labs/omada-controller"
+        tag="latest"
+        token=$(curl -sX GET \
+          "https://ghcr.io/token?scope=repository%3Alinuxserver-labs%2Fomada-controller%3Apull" \
+          | jq -r '.token')
+        multidigest=$(curl -s \
+          --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+          --header "Authorization: Bearer ${token}" \
+          "https://ghcr.io/v2/${image}/manifests/${tag}" \
+          | jq -r 'first(.manifests[].digest)')
+        digest=$(curl -s \
+          --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+          --header "Authorization: Bearer ${token}" \
+          "https://ghcr.io/v2/${image}/manifests/${multidigest}" \
+          | jq -r '.config.digest')
+        image_info=$(curl -sL \
+          --header "Authorization: Bearer ${token}" \
+          "https://ghcr.io/v2/${image}/blobs/${digest}" \
+          | jq -r '.config')
+
+        IMAGE_RELEASE=$(echo ${image_info} | jq -r '.Labels.build_version' | awk '{print $3}')
+        IMAGE_VERSION=$(echo ${IMAGE_RELEASE} | awk -F'-ls' '{print $1}')
+
+        if [ -z "${IMAGE_VERSION}" ]; then
+          echo "**** Can't retrieve last pushed version, exiting ****"
+          exit 1
+        fi
+
+        echo "**** Last pushed version: ${IMAGE_VERSION} ****"
+
+        if [ "${EXT_RELEASE}" == "${IMAGE_VERSION}" ]; then
+          echo "**** Version ${EXT_RELEASE} already pushed, not rebuilding ****"
+          echo ::set-output name=update_available::false
+          exit 0
+        fi
+
+        echo ::set-output name=update_available::true
+
+    - name: Prepare
+      id: prep
+      run: |
+        REGISTRY_IMAGE=$(echo "ghcr.io/$GITHUB_REPOSITORY" | sed 's/docker-//')
+        VERSION=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -o 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}')
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        fi
+
+        SEMVER=$(date '+%Y.%m.%d')
+        semver_regex='([0-9]+)\.([0-9]+)\.([0-9]+)$'
+        if [[ $VERSION =~ $semver_regex ]]; then
+            SEMVER="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+        else
+            semver_regex='([0-9]+)\.([0-9]+)(\.([0-9]+))?.*'
+            if [[ $VERSION =~ $semver_regex ]]; then
+                echo 'here'
+                if [[ ${BASH_REMATCH[4]} ]]; then
+                    SEMVER="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[4]}"
+                else
+                    SEMVER="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$(date '+%Y%m%d')"
+                fi
+            fi
+        fi
+
+        TAGS="${REGISTRY_IMAGE}:${VERSION},${REGISTRY_IMAGE}:latest,${REGISTRY_IMAGE}:${SEMVER}"
+        echo ::set-output name=tags::${TAGS}
+
+        if [ "${{github.event_name}}" == "pull_request" ]; then
+          echo ::set-output name=push::false
+          echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
+          echo ::set-output name=cache_to::""
+        else
+          echo ::set-output name=push::true
+          echo ::set-output name=cache_from::"type=registry,ref=${REGISTRY_IMAGE}:buildcache"
+          echo ::set-output name=cache_to::"type=registry,ref=${REGISTRY_IMAGE}:buildcache,mode=max"
+        fi
+
+        echo ::set-output name=github_server_url::"${GITHUB_SERVER_URL}"
+        echo ::set-output name=BUILD_DATE::$(date '+%Y-%m-%dT%H:%M:%S%:z')
+        echo ::set-output name=VERSION::${VERSION}
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+      with:
+        platforms: all
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        install: true
+        version: latest
+        driver-opts: image=moby/buildkit:master
+
+    - name: Login to GitHub Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: linuxserver-labs
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and Push
+      id: docker_build
+      if: ${{ steps.build_check.outputs.update_available == 'true' }}
+      uses: docker/build-push-action@v2
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: ${{ steps.prep.outputs.push }}
+        tags: ${{ steps.prep.outputs.tags }}
+        build-args: |
+          IMAGE_SOURCE=${{ steps.prep.outputs.github_server_url }}/${{ github.repository }}
+          BUILD_DATE=${{ steps.prep.outputs.BUILD_DATE }}
+          VERSION=${{ steps.prep.outputs.VERSION }}
+        cache-from: ${{ steps.prep.outputs.cache_from }}
+        cache-to: ${{ steps.prep.outputs.cache_to }}
+
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
