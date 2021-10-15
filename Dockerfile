@@ -32,13 +32,19 @@ RUN \
   mkdir -p /tmp/omada && \
   OMADA_DOWNLOAD=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ \
     | egrep -io "https?://[^ ]+${OMADA_VERSION}_linux_x64.tar.gz") && \
-  # Download Omada package
+  # Download Omada package, try and handle their appalling packaging "standards"
   curl -o \
     /tmp/omada.tar.gz -L \
     ${OMADA_DOWNLOAD} && \
-  tar xf \
-    /tmp/omada.tar.gz -C \
-    /tmp/omada/ --strip-components=1 && \
+  if [ $(tar -tf /tmp/omada.tar.gz | awk -F "\n" '{print $1;exit}' | grep -i "omada") ]; then \
+    tar xf \
+      /tmp/omada.tar.gz -C \
+      /tmp/omada/ --strip-components=1; \
+  else \
+    tar xf \
+      /tmp/omada.tar.gz -C \
+      /tmp/omada/; \
+  fi && \
   mkdir -p /app/omada && \
   cd /tmp/omada && \
   for name in bin data properties webapps keystore lib install.sh uninstall.sh; do cp ${name} /app/omada -r; done && \
