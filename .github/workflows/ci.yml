@@ -30,7 +30,7 @@ jobs:
         fi
 
         echo "**** Retrieving external version ****"
-        EXT_RELEASE=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -o 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}')
+        EXT_RELEASE=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -io 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}')
         if [ -z "${EXT_RELEASE}" ] || [ "${EXT_RELEASE}" == "null" ]; then
           echo "**** Can't retrieve external version, exiting ****"
           exit 1
@@ -84,7 +84,7 @@ jobs:
       id: prep
       run: |
         REGISTRY_IMAGE=$(echo "ghcr.io/$GITHUB_REPOSITORY" | sed 's/docker-//')
-        VERSION=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -o 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}')
+        VERSION=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ | egrep -m 1 -io 'https?://[^ ]+.tar.gz' | awk -F "/" '{print $NF}' | awk -F '_' '{print $4}')
         if [[ $GITHUB_REF == refs/tags/v* ]]; then
           VERSION=${GITHUB_REF#refs/tags/}
         fi
