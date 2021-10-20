@@ -3,7 +3,7 @@ FROM ghcr.io/linuxserver/baseimage-ubuntu:focal
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG OMADA_VERSION
+ARG APP_VERSION="$(echo ${VERSION} | awk -F'-ls' '{print $1}')"
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="thespad"
 
@@ -23,15 +23,15 @@ RUN \
     openjdk-8-jre-headless && \
   echo "**** install omada ****" && \
   # Somehow figure out version detection and download URL here
-  if [ -z ${OMADA_VERSION+x} ]; then \
-    OMADA_VERSION=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ \
+  if [ -z ${APP_VERSION+x} ]; then \
+    APP_VERSION=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ \
     | egrep -m 1 -io 'https?://[^ ]+.tar.gz' \
     | awk -F "/" '{print $NF}' \
     | awk -F '_' '{print $4}'); \
   fi && \
   mkdir -p /tmp/omada && \
   OMADA_DOWNLOAD=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ \
-    | egrep -io "https?://[^ ]+${OMADA_VERSION}_linux_x64.tar.gz") && \
+    | egrep -io "https?://[^ ]+${APP_VERSION}_linux_x64.tar.gz") && \
   # Download Omada package, try and handle their appalling packaging "standards"
   curl -o \
     /tmp/omada.tar.gz -L \
