@@ -3,7 +3,7 @@ FROM ghcr.io/linuxserver/baseimage-ubuntu:focal
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG APP_VERSION="$(echo ${VERSION} | awk -F'-ls' '{print $1}')"
+ARG APP_VERSION
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="thespad"
 
