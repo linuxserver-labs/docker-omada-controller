@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv bash
 
 exec \
-    s6-setuidgid abc /usr/bin/jsvc  -cwd /app/omada/lib -pidfile /config/omada.pid  -home /usr/lib/jvm/java-8-openjdk-amd64/jre/  -cp /usr/share/java/commons-daemon.jar:/app/omada/lib/*  -outfile /app/omada/logs/startup.log  -errfile /app/omada/logs/startup.log  -user abc  -procname omada  -showversion  -server -Xms128m -Xmx1024m -XX:MaxHeapFreeRatio=60 -XX:MinHeapFreeRatio=30  -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/omada/logs/java_heapdump.hprof com.tplink.omada.start.OmadaLinuxMain
+    s6-setuidgid abc /usr/bin/jsvc -cwd /app/omada/lib -nodetach -pidfile /config/omada.pid -home /usr/lib/jvm/java-8-openjdk-amd64/jre/ -cp /usr/share/java/commons-daemon.jar:/app/omada/lib/* -outfile /app/omada/logs/startup.log -errfile /app/omada/logs/error.log -user abc -procname omada -showversion -server -Xms128m -Xmx1024m -XX:MaxHeapFreeRatio=60 -XX:MinHeapFreeRatio=30 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/omada/logs/java_heapdump.hprof com.tplink.omada.start.OmadaLinuxMain
