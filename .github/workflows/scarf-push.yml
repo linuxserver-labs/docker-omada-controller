@@ -1,0 +1,30 @@
+name: Push To Scarf
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_owner:
+        description: Repo Owner
+        required: true
+        type: string
+      app_name:
+        description: App Name
+        required: true
+        type: string
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Push to Scarf
+        id: push_scarf
+        run: |
+          PACKAGE_UUID=$(curl -s -H "Authorization: Bearer ${SCARF_TOKEN}" https://scarf.sh/api/v1/organizations/linuxserver-ci/packages | jq -r '.[] | select(.name=="${{ inputs.repo_owner }}/${{ inputs.app_name }}") | .uuid')
+          if [ -z "${PACKAGE_UUID}" ]; then
+            echo "Adding package to Scarf.sh"
+            curl -vX POST https://scarf.sh/api/v1/organizations/linuxserver-ci/packages -H "Authorization: Bearer ${SCARF_TOKEN}" -H "Content-Type: application/json" \
+              -d '{"name":"${{ inputs.repo_owner }}/${{ inputs.app_name }}","shortDescription":"example description","libraryType":"docker","website":"https://github.com/${{ inputs.repo_owner }}/docker-${{ inputs.app_name }}","backendUrl":"https://ghcr.io/${{ inputs.repo_owner }}/${{ inputs.app_name }}","publicUrl":"https://lscr.io/${{ inputs.repo_owner }}/${{ inputs.app_name }}"}'
+          else
+            echo "Package already exists on Scarf.sh"
+          fi
