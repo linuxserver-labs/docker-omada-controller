@@ -13,7 +13,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 RUN \
   echo "**** install packages ****" && \
   apt-get update && \
-  apt-get install -y \
+  apt-get install --no-install-recommends -y \
     bash \
     curl \
     jsvc \
@@ -21,21 +21,33 @@ RUN \
     logrotate \
     mongodb-server \
     openjdk-8-jre-headless && \
-  echo "**** install omada ****" && \
+  echo "**** download omada ****" && \
   # Somehow figure out version detection and download URL here
   if [ -z ${APP_VERSION+x} ]; then \
+    echo "**** No APP_VERSION supplied, detecting ****" && \
     APP_VERSION=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ \
     | grep -E -m 1 -io 'https?://[^ ]+.tar.gz' \
     | awk -F "/" '{print $NF}' \
     | awk -F '_' '{print $4}'); \
   fi && \
+  if [ -z ${APP_VERSION} ]; then \
+    echo "**** No current version found, trying previous major versions ****" && \
+    PREVIOUS_MAJOR_VER=$(curl -sL "https://www.tp-link.com/uk/support/download/omada-software-controller" | grep -E -io 'https://www.tp-link.com/uk/support/download/omada-software-controller/\S{2}' | awk -F '/' '{print $8}' | awk 'NR==2{print $1}') && \
+    echo "**** Previous major version was $PREVIOUS_MAJOR_VER ****" && \
+    APP_VERSION=$(curl -sL "https://www.tp-link.com/uk/support/download/omada-software-controller/${PREVIOUS_MAJOR_VER}" \
+    | grep -E -m 1 -io 'https?://[^ ]+.tar.gz' \
+    | awk -F "/" '{print $NF}' \
+    | awk -F '_' '{print $4}'); \
+  fi && \ 
+  echo "**** App version is ${APP_VERSION} ****" && \  
   mkdir -p /tmp/omada && \
-  OMADA_DOWNLOAD=$(curl -sL https://www.tp-link.com/uk/support/download/omada-software-controller/ \
+  OMADA_DOWNLOAD=$(curl -sL "https://www.tp-link.com/uk/support/download/omada-software-controller/$(echo $APP_VERSION | cut -c 1-2)" \
     | grep -E -io "https?://[^ ]+${APP_VERSION}_linux_x64.tar.gz") && \
   # Download Omada package, try and handle their appalling packaging "standards"
   curl -o \
     /tmp/omada.tar.gz -L \
     ${OMADA_DOWNLOAD} && \
+  echo "**** unpack omada ****" && \
   if [ $(tar -tf /tmp/omada.tar.gz | awk -F "\n" '{print $1;exit}' | grep -i "omada") ]; then \
     tar xf \
       /tmp/omada.tar.gz -C \
@@ -45,6 +57,7 @@ RUN \
       /tmp/omada.tar.gz -C \
       /tmp/omada/; \
   fi && \
+  echo "**** install omada ****" && \  
   mkdir -p /app/omada && \
   cd /tmp/omada && \
   for name in bin data properties webapps keystore lib install.sh uninstall.sh; do cp ${name} /app/omada -r; done && \
