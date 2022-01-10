@@ -4,7 +4,7 @@ about: Create a report to help us improve
 
 ---
 [linuxserverurl]: https://linuxserver.io
-[![linuxserver.io](https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver_medium.png)][linuxserverurl]
+[![linuxserver.io](https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/lsio-labs-wide.png)][linuxserverurl]
 
 <!--- If you are new to Docker or this application our issue tracker is **ONLY** used for reporting bugs or requesting features. Please use [our discord server](https://discord.gg/YWrKVTn) for general support. --->
 
