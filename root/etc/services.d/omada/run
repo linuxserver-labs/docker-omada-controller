@@ -9,5 +9,29 @@ case $(uname -m) in
     ;;
 esac
 
+OMADA_HOME="/app/omada"
+LOG_DIR="${OMADA_HOME}/logs"
+
 exec \
-    s6-setuidgid abc /usr/bin/jsvc -cwd /app/omada/lib -nodetach -pidfile /config/omada.pid -home /usr/lib/jvm/java-8-openjdk-${ARCH}/jre/ -cp /usr/share/java/commons-daemon.jar:/app/omada/lib/* -outfile /app/omada/logs/startup.log -errfile /app/omada/logs/error.log -user abc -procname omada -showversion -server -Xms128m -Xmx1024m -XX:MaxHeapFreeRatio=60 -XX:MinHeapFreeRatio=30 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/omada/logs/java_heapdump.hprof com.tplink.omada.start.OmadaLinuxMain
+    s6-setuidgid abc \
+        /usr/bin/jsvc \
+            -cwd /app/omada/lib \
+            -nodetach \
+            -pidfile /config/omada.pid \
+            -home /usr/lib/jvm/java-8-openjdk-${ARCH}/jre/ \
+            -cp /usr/share/java/commons-daemon.jar:${OMADA_HOME}/lib/*:${OMADA_HOME}/properties \
+            -outfile ${LOG_DIR}/startup.log \
+            -errfile ${LOG_DIR}/error.log \
+            -user abc \
+            -procname omada \
+            -showversion \
+            -server \
+            -Xms128m \
+            -Xmx1024m \
+            -XX:MaxHeapFreeRatio=60 \
+            -XX:MinHeapFreeRatio=30  \
+            -XX:+HeapDumpOnOutOfMemoryError \
+            -XX:HeapDumpPath=${LOG_DIR}/java_heapdump.hprof \
+            -Djava.awt.headless=true \
+            -Dlog4j2.formatMsgNoLookups=true \
+            com.tplink.smb.omada.starter.OmadaLinuxMain

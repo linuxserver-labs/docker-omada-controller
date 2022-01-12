@@ -60,7 +60,7 @@ RUN \
   echo "**** install omada ****" && \  
   mkdir -p /app/omada && \
   cd /tmp/omada && \
-  for name in bin data properties webapps keystore lib install.sh uninstall.sh; do cp ${name} /app/omada -r; done && \
+  for name in bin data properties keystore lib install.sh uninstall.sh; do cp ${name} /app/omada -r; done && \
   ln -sf $(which mongod) /app/omada/bin/mongod && \
   chmod 755 /app/omada/bin/* && \
   echo "**** cleanup ****" && \
