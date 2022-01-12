@@ -10,3 +10,5 @@ jobs:
     with:
       repo_owner: ${{ github.repository_owner }}
       app_name: "omada-controller"
+    secrets:
+      scarf_token: ${{ secrets.SCARF_TOKEN }}
