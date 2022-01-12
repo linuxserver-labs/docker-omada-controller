@@ -44,7 +44,7 @@ Find us at:
 
 Our images support multiple architectures such as `x86-64`, `arm64` and `armhf`. We utilise the docker manifest for multi-platform awareness. More information is available from docker [here](https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md#manifest-list) and our announcement [here](https://blog.linuxserver.io/2019/02/21/the-lsio-pipeline-project/).
 
-Simply pulling `ghcr.io/linuxserver-labs/omada-controller` should retrieve the correct image for your arch, but you can also pull specific arch images via tags.
+Simply pulling `lscr.io/linuxserver-labs/omada-controller` should retrieve the correct image for your arch, but you can also pull specific arch images via tags.
 
 The architectures supported by this image are:
 
@@ -68,7 +68,7 @@ Here are some example snippets to help you get started creating a container.
 version: "2.1"
 services:
   omada-controller:
-    image: ghcr.io/linuxserver-labs/omada-controller
+    image: lscr.io/linuxserver-labs/omada-controller
     container_name: omada-controller
     environment:
       - PUID=1000
@@ -102,7 +102,7 @@ docker run -d \
   -p 29813:29813 \
   -v /path/to/data:/config \
   --restart unless-stopped \
-  ghcr.io/linuxserver-labs/omada-controller
+  lscr.io/linuxserver-labs/omada-controller
 ```
 
 ## Parameters
@@ -165,7 +165,7 @@ We publish various [Docker Mods](https://github.com/linuxserver/docker-mods) to 
 * container version number
   * `docker inspect -f '{{ index .Config.Labels "build_version" }}' omada-controller`
 * image version number
-  * `docker inspect -f '{{ index .Config.Labels "build_version" }}' ghcr.io/linuxserver-labs/omada-controller`
+  * `docker inspect -f '{{ index .Config.Labels "build_version" }}' lscr.io/linuxserver-labs/omada-controller`
 
 ## Updating Info
 
@@ -183,7 +183,7 @@ Below are the instructions for updating containers:
 
 ### Via Docker Run
 
-* Update the image: `docker pull ghcr.io/linuxserver-labs/omada-controller`
+* Update the image: `docker pull lscr.io/linuxserver-labs/omada-controller`
 * Stop the running container: `docker stop omada-controller`
 * Delete the container: `docker rm omada-controller`
 * Recreate a new container with the same docker run parameters as instructed above (if mapped correctly to a host folder, your `/config` folder and settings will be preserved)
@@ -218,7 +218,7 @@ cd docker-omada-controller
 docker build \
   --no-cache \
   --pull \
-  -t ghcr.io/linuxserver-labs/omada-controller:latest .
+  -t lscr.io/linuxserver-labs/omada-controller:latest .
 ```
 
 The ARM variants can be built on x86_64 hardware using `multiarch/qemu-user-static`
