@@ -87,6 +87,7 @@ services:
       - 29811:29811
       - 29812:29812
       - 29813:29813
+      - 29814:29814
     restart: unless-stopped
 ```
 
@@ -104,6 +105,7 @@ docker run -d \
   -p 29811:29811 \
   -p 29812:29812 \
   -p 29813:29813 \
+  -p 29814:29814 \
   -v /path/to/data:/config \
   --restart unless-stopped \
   lscr.io/linuxserver-labs/omada-controller
@@ -121,6 +123,7 @@ Container images are configured using parameters passed at runtime (such as thos
 | `-p 29811` | EAP Management |
 | `-p 29812` | EAP adoption |
 | `-p 29813` | EAP upgrade |
+| `-p 29814` | v5 EAP Discovery & Adoption |
 | `-e PUID=1000` | for UserID - see below for explanation |
 | `-e PGID=1000` | for GroupID - see below for explanation |
 | `-e TZ=Europe/London` | Specify a timezone to use EG Europe/London, this is required for omada-controller |
