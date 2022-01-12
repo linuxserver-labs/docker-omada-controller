@@ -44,7 +44,7 @@ Find us at:
 
 Our images support multiple architectures such as `x86-64`, `arm64` and `armhf`. We utilise the docker manifest for multi-platform awareness. More information is available from docker [here](https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md#manifest-list) and our announcement [here](https://blog.linuxserver.io/2019/02/21/the-lsio-pipeline-project/).
 
-Simply pulling `ghcr.io/linuxserver-labs/omada-controller` should retrieve the correct image for your arch, but you can also pull specific arch images via tags.
+Simply pulling `lscr.io/linuxserver-labs/omada-controller` should retrieve the correct image for your arch, but you can also pull specific arch images via tags.
 
 The architectures supported by this image are:
 
@@ -57,6 +57,10 @@ The architectures supported by this image are:
 
 Access the webui at `<your-ip>:8088`, for more information check out [omada-controller](https://www.tp-link.com/uk/support/download/omada-software-controller/).
 
+### Upgrades from v4 -> v5
+
+**Due to breaking changes it is necessary to take a backup of your v4 install, spin up a clean v5 container and then restore the backup.**
+
 ## Usage
 
 Here are some example snippets to help you get started creating a container.
@@ -68,7 +72,7 @@ Here are some example snippets to help you get started creating a container.
 version: "2.1"
 services:
   omada-controller:
-    image: ghcr.io/linuxserver-labs/omada-controller
+    image: lscr.io/linuxserver-labs/omada-controller
     container_name: omada-controller
     environment:
       - PUID=1000
@@ -83,6 +87,7 @@ services:
       - 29811:29811
       - 29812:29812
       - 29813:29813
+      - 29814:29814
     restart: unless-stopped
 ```
 
@@ -100,9 +105,10 @@ docker run -d \
   -p 29811:29811 \
   -p 29812:29812 \
   -p 29813:29813 \
+  -p 29814:29814 \
   -v /path/to/data:/config \
   --restart unless-stopped \
-  ghcr.io/linuxserver-labs/omada-controller
+  lscr.io/linuxserver-labs/omada-controller
 ```
 
 ## Parameters
@@ -117,6 +123,7 @@ Container images are configured using parameters passed at runtime (such as thos
 | `-p 29811` | EAP Management |
 | `-p 29812` | EAP adoption |
 | `-p 29813` | EAP upgrade |
+| `-p 29814` | v5 EAP Discovery & Adoption |
 | `-e PUID=1000` | for UserID - see below for explanation |
 | `-e PGID=1000` | for GroupID - see below for explanation |
 | `-e TZ=Europe/London` | Specify a timezone to use EG Europe/London, this is required for omada-controller |
@@ -165,7 +172,7 @@ We publish various [Docker Mods](https://github.com/linuxserver/docker-mods) to 
 * container version number
   * `docker inspect -f '{{ index .Config.Labels "build_version" }}' omada-controller`
 * image version number
-  * `docker inspect -f '{{ index .Config.Labels "build_version" }}' ghcr.io/linuxserver-labs/omada-controller`
+  * `docker inspect -f '{{ index .Config.Labels "build_version" }}' lscr.io/linuxserver-labs/omada-controller`
 
 ## Updating Info
 
@@ -183,7 +190,7 @@ Below are the instructions for updating containers:
 
 ### Via Docker Run
 
-* Update the image: `docker pull ghcr.io/linuxserver-labs/omada-controller`
+* Update the image: `docker pull lscr.io/linuxserver-labs/omada-controller`
 * Stop the running container: `docker stop omada-controller`
 * Delete the container: `docker rm omada-controller`
 * Recreate a new container with the same docker run parameters as instructed above (if mapped correctly to a host folder, your `/config` folder and settings will be preserved)
@@ -218,7 +225,7 @@ cd docker-omada-controller
 docker build \
   --no-cache \
   --pull \
-  -t ghcr.io/linuxserver-labs/omada-controller:latest .
+  -t lscr.io/linuxserver-labs/omada-controller:latest .
 ```
 
 The ARM variants can be built on x86_64 hardware using `multiarch/qemu-user-static`
@@ -231,5 +238,6 @@ Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64
 
 ## Versions
 
+* **12.01.22:** - Switch to MongoDB 4.4
 * **29.09.21:** - Documentation updates
 * **13.08.21:** - Initial Release

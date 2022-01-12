@@ -16,11 +16,17 @@ RUN \
   apt-get install --no-install-recommends -y \
     bash \
     curl \
+    gnupg \
     jsvc \
     libcap2 \
     logrotate \
-    mongodb-server \
     openjdk-8-jre-headless && \
+  echo "**** install mongodb ****" && \
+  curl -s https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
+  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list && \
+  apt-get update && \
+  apt-get install -y \
+    mongodb-org-server && \
   echo "**** download omada ****" && \
   # Somehow figure out version detection and download URL here
   if [ -z ${APP_VERSION+x} ]; then \
@@ -78,4 +84,4 @@ COPY root/ /
 
 # Volumes and Ports
 VOLUME /config
-EXPOSE 8088 8043 29810 29811 29812 29813
+EXPOSE 8088 8043 29810 29811 29812 29813 29814
