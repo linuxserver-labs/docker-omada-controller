@@ -57,6 +57,10 @@ The architectures supported by this image are:
 
 Access the webui at `<your-ip>:8088`, for more information check out [omada-controller](https://www.tp-link.com/uk/support/download/omada-software-controller/).
 
+### Upgrades from v4 -> v5
+
+**Due to breaking changes it is necessary to take a backup of your v4 install, spin up a clean v5 container and then restore the backup.**
+
 ## Usage
 
 Here are some example snippets to help you get started creating a container.
