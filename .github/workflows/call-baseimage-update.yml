@@ -1,16 +1,17 @@
-name: Check for update and release
+name: Check for base image updates
 
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 * * * *'
+    - cron:  '0 0 * * 0'
 
 jobs:
   call-workflow:
-    uses: linuxserver-labs/docker-actions/.github/workflows/check-and-release.yml@v5
+    uses: linuxserver-labs/docker-actions/.github/workflows/check-baseimage-update.yml@v5
     with:
       repo_owner: ${{ github.repository_owner }}
       app_name: "omada-controller"
-      release_type: "script"
+      baseimage: "ubuntu"
+      basebranch: "focal"      
     secrets:
       repo_release_token: ${{ secrets.repo_release_token }}
