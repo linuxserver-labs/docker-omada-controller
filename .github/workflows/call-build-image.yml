@@ -6,9 +6,10 @@ on:
 
 jobs:
   call-workflow:
-    uses: linuxserver-labs/docker-actions/.github/workflows/build-image.yml@v4
+    uses: linuxserver-labs/docker-actions/.github/workflows/build-image.yml@v5
     with:
       repo_owner: ${{ github.repository_owner }}
       app_name: "omada-controller"
+      release_type: "script"
     secrets:
       scarf_token: ${{ secrets.SCARF_TOKEN }}

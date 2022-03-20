@@ -48,10 +48,11 @@ Simply pulling `lscr.io/linuxserver-labs/omada-controller` should retrieve the c
 
 The architectures supported by this image are:
 
-| Architecture | Tag |
-| :----: | --- |
-| x86-64 | latest |
-| arm64  | latest |
+| Architecture | Available | Tag |
+| :----: | :----: | ---- |
+| x86-64 | ✅ | latest |
+| arm64 | ✅ | latest |
+| armhf | ❌ |  |
 
 ## Application Setup
 
@@ -72,7 +73,7 @@ Here are some example snippets to help you get started creating a container.
 version: "2.1"
 services:
   omada-controller:
-    image: lscr.io/linuxserver-labs/omada-controller
+    image: lscr.io/linuxserver-labs/omada-controller:latest
     container_name: omada-controller
     environment:
       - PUID=1000
@@ -108,7 +109,7 @@ docker run -d \
   -p 29814:29814 \
   -v /path/to/data:/config \
   --restart unless-stopped \
-  lscr.io/linuxserver-labs/omada-controller
+  lscr.io/linuxserver-labs/omada-controller:latest
 ```
 
 ## Parameters
