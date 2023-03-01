@@ -14,8 +14,6 @@ RUN \
   echo "**** install packages ****" && \
   apt-get update && \
   apt-get install --no-install-recommends -y \
-    bash \
-    curl \
     gnupg \
     jsvc \
     libcap2 \
