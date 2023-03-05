@@ -239,6 +239,7 @@ Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64
 
 ## Versions
 
+* **01.03.23:** - Migrate to s6v3
 * **12.01.22:** - Switch to MongoDB 4.4
 * **29.09.21:** - Documentation updates
 * **13.08.21:** - Initial Release
