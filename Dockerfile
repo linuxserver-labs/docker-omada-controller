@@ -52,7 +52,7 @@ RUN \
     /tmp/omada.tar.gz -L \
     ${OMADA_DOWNLOAD} && \
   echo "**** unpack omada ****" && \
-  if [ $(tar -tf /tmp/omada.tar.gz | awk -F "\n" '{print $1;exit}' | grep -i "omada") ]; then \
+  if [ $(tar --exclude="*/*" -tf /tmp/omada.tar.gz | grep -i "omada" | awk -F "\n" '{print $1;exit}') ]; then \
     tar xf \
       /tmp/omada.tar.gz -C \
       /tmp/omada/ --strip-components=1; \
