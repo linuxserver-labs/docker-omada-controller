@@ -42,8 +42,8 @@ RUN \
     | grep -E -m 1 -io 'https?://[^ ]+.tar.gz' \
     | awk -F "/" '{print $NF}' \
     | awk -F '_' '{print $4}'); \
-  fi && \ 
-  echo "**** App version is ${APP_VERSION} ****" && \  
+  fi && \
+  echo "**** App version is ${APP_VERSION} ****" && \
   mkdir -p /tmp/omada && \
   OMADA_DOWNLOAD=$(curl -sL "https://www.tp-link.com/uk/support/download/omada-software-controller/$(echo $APP_VERSION | cut -c 1-2)" \
     | grep -E -io "https?://[^ ]+${APP_VERSION}_linux_x64.tar.gz") && \
@@ -52,16 +52,10 @@ RUN \
     /tmp/omada.tar.gz -L \
     ${OMADA_DOWNLOAD} && \
   echo "**** unpack omada ****" && \
-  if [ $(tar -tf /tmp/omada.tar.gz | awk -F "\n" '{print $1;exit}' | grep -i "omada") ]; then \
-    tar xf \
-      /tmp/omada.tar.gz -C \
-      /tmp/omada/ --strip-components=1; \
-  else \
-    tar xf \
-      /tmp/omada.tar.gz -C \
-      /tmp/omada/; \
-  fi && \
-  echo "**** install omada ****" && \  
+  tar xf \
+    /tmp/omada.tar.gz -C \
+    /tmp/omada/ --strip-components=1 && \
+  echo "**** install omada ****" && \
   mkdir -p /app/omada && \
   cd /tmp/omada && \
   for name in bin data properties keystore lib install.sh uninstall.sh; do cp ${name} /app/omada -r; done && \
