@@ -29,6 +29,11 @@ Find us at:
 * [GitHub](https://github.com/linuxserver) - view the source for all of our repositories.
 * [Open Collective](https://opencollective.com/linuxserver) - please consider helping us by either donating or contributing to our budget
 
+# This image is deprecated. We will not offer support for this image and it will not be updated.
+
+We recommend switching to another image, such as:
+[https://github.com/mbentley/docker-omada-controller](https://github.com/mbentley/docker-omada-controller)
+
 # [linuxserver/omada-controller](https://github.com/linuxserver-labs/docker-omada-controller)
 
 [![Scarf.io pulls](https://scarf.sh/installs-badge/linuxserver-ci/linuxserver-labs%2Fomada-controller?color=94398d&label-color=555555&logo-color=ffffff&style=for-the-badge&package-type=docker)](https://scarf.sh/gateway/linuxserver-ci/docker/linuxserver-labs%2Fomada-controller)
@@ -239,6 +244,7 @@ Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64
 
 ## Versions
 
+* **04.06.24:** - Deprecate.
 * **01.03.23:** - Migrate to s6v3
 * **12.01.22:** - Switch to MongoDB 4.4
 * **29.09.21:** - Documentation updates
